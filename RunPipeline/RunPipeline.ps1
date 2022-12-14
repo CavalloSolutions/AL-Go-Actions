@@ -311,6 +311,7 @@ try {
         -CreateRuntimePackages:$CreateRuntimePackages `
         -appBuild $appBuild -appRevision $appRevision `
         -uninstallRemovedApps
+        -NewBcContainer { Param([Hashtable]$parameters) New-BcContainer @parameters; Invoke-ScriptInBcContainer $parameters.ContainerName -scriptblock { $progressPreference = 'SilentlyContinue' }; Set-BcContainerServerConfiguration $parameters.ContainerName DisableWriteInsideTryFunctions false; } 
 
     if ($containerBaseFolder) {
 
