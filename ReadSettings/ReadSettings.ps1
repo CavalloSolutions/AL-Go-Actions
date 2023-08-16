@@ -41,7 +41,7 @@ try {
     }
 
     if ($ENV:GITHUB_EVENT_NAME -in @("pull_request_target", "pull_request")) {
-        $settings.doNotSignApps = $true
+        # $settings.doNotSignApps = $true
         $settings.versioningStrategy = 15
     }
 
