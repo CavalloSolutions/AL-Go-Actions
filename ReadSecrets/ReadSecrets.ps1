@@ -80,6 +80,8 @@ try {
                     $json.Keys | ForEach-Object {
                         if (@("Scopes","TenantId","BlobName","ContainerName","StorageAccountName") -notcontains $_) {
                             # Mask individual values (but not Scopes, TenantId, BlobName, ContainerName and StorageAccountName)
+                            $secretVal = $json."$_"
+                            Write-Host "$envVar successfully read from secret $secret: $secretVal" 
                             MaskValue -key "$($secret).$($_)" -value $json."$_"
                         }
                     }
