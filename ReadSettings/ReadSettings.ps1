@@ -16,12 +16,12 @@ else {
 }
 
 if ($ENV:GITHUB_EVENT_NAME -in @("pull_request_target", "pull_request")) {
-    $settings.doNotSignApps = $true
-    $settings.versioningStrategy = 15
+    # $settings.doNotSignApps = $true
+    # $settings.versioningStrategy = 15
 }
 
 if ($settings.appBuild -eq [int32]::MaxValue) {
-    $settings.versioningStrategy = 15
+    # $settings.versioningStrategy = 15
 }
 
 if ($settings.versioningstrategy -ne -1) {

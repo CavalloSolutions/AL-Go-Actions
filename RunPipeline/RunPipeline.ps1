@@ -427,7 +427,9 @@ try {
         -buildArtifactFolder $buildArtifactFolder `
         -CreateRuntimePackages:$CreateRuntimePackages `
         -appBuild $appBuild -appRevision $appRevision `
-        -uninstallRemovedApps
+        -uninstallRemovedApps `
+        -NewBcContainer { Param([Hashtable]$parameters) New-BcContainer @parameters; Invoke-ScriptInBcContainer $parameters.ContainerName -scriptblock { $progressPreference = 'SilentlyContinue' }; Set-BcContainerServerConfiguration $parameters.ContainerName DisableWriteInsideTryFunctions false;  Restart-BCContainer $parameters.ContainerName} 
+        
 
     if ($containerBaseFolder) {
         Write-Host "Copy artifacts and build output back from build container"
