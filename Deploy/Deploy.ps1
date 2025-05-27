@@ -159,14 +159,8 @@ try {
 
     try {
         if ($response.environmentType -eq 1) {
-            if ($bcAuthContext.ClientSecret) {
-                Write-Host "Using S2S, publishing apps using automation API"
-                Publish-PerTenantExtensionApps -bcAuthContext $bcAuthContext -environment $envName -appFiles $apps
-            }
-            else {
-                Write-Host "Publishing apps using development endpoint"
-                Publish-BcContainerApp -bcAuthContext $bcAuthContext -environment $envName -appFile $apps -useDevEndpoint -checkAlreadyInstalled
-            }
+            Write-Host "Publishing apps using development endpoint"
+            Publish-BcContainerApp -bcAuthContext $bcAuthContext -environment $envName -appFile $apps -useDevEndpoint -checkAlreadyInstalled
         }
         else {
             if ($type -eq 'CD') {
