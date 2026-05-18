@@ -813,7 +813,7 @@ function DownloadRelease {
                 if (Test-Path $foldername) {
                     Remove-Item $foldername -Recurse -Force
                 }
-                Expand-Archive -Path $filename -DestinationPath $foldername
+                [System.IO.Compression.ZipFile]::ExtractToDirectory($filename, $foldername)
                 Remove-Item $filename -Force
                 $foldername
             }
@@ -1254,7 +1254,7 @@ function DownloadArtifact {
         if (Test-Path $foldername) {
             Remove-Item $foldername -Recurse -Force
         }
-        Expand-Archive -Path $filename -DestinationPath $foldername
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($filename, $foldername)
         Remove-Item $filename -Force
         return $foldername
     }

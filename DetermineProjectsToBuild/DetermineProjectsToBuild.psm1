@@ -488,7 +488,7 @@ function Get-UnmodifiedAppsFromBaselineWorkflowRun {
                 }
                 $file = DownloadArtifact -path $tempFolder -token $token -artifact $runArtifact
                 $artifactFolder = Join-Path $tempFolder $mask
-                Expand-Archive -Path $file -DestinationPath $artifactFolder -Force
+                Expand-ZipArchive -Path $file -DestinationPath $artifactFolder
                 Remove-Item -Path $file -Force
                 $downloads | ForEach-Object {
                     $appJsonPath = Join-Path $projectPath "$_/app.json"

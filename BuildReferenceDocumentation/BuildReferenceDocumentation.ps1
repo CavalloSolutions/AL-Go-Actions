@@ -31,7 +31,7 @@ if ($artifacts -ne ".artifacts") {
                 throw "Unable to download artifact $($_.name)"
             }
             $destFolder = Join-Path $artifactsFolder ([System.IO.Path]::GetFileNameWithoutExtension($filename))
-            Expand-Archive -Path $filename -DestinationPath $destFolder -Force
+            Expand-ZipArchive -Path $filename -DestinationPath $destFolder
             Remove-Item -Path $filename -Force
         }
     }

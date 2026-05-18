@@ -217,6 +217,42 @@ function stringToInt {
     }
 }
 
+Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue
+
+# Cross-version zip extraction with overwrite support.
+# [System.IO.Compression.ZipFile]::ExtractToDirectory with a bool overwrite parameter was
+# added in .NET 5 and is not available on .NET Framework (PowerShell 5.1).
+# This function uses ZipFileExtensions.ExtractToFile(entry, dest, overwrite) which exists in both.
+function Expand-ZipArchive {
+    Param (
+        [Parameter(Mandatory = $true)]
+        [string] $Path,
+        [Parameter(Mandatory = $true)]
+        [string] $DestinationPath
+    )
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($Path)
+    try {
+        foreach ($entry in $zip.Entries) {
+            $destPath = Join-Path $DestinationPath $entry.FullName
+            if ($entry.FullName.EndsWith('/') -or $entry.FullName.EndsWith('\')) {
+                if (-not (Test-Path $destPath)) {
+                    New-Item -ItemType Directory -Path $destPath -Force | Out-Null
+                }
+            }
+            else {
+                $destDir = [System.IO.Path]::GetDirectoryName($destPath)
+                if (-not (Test-Path $destDir)) {
+                    New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+                }
+                [System.IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $destPath, $true)
+            }
+        }
+    }
+    finally {
+        $zip.Dispose()
+    }
+}
+
 function Expand-7zipArchive {
     Param (
         [Parameter(Mandatory = $true)]
@@ -243,8 +279,8 @@ function Expand-7zipArchive {
         Invoke-Expression -Command $command | Out-Null
     }
     else {
-        OutputDebug -message "Using Expand-Archive"
-        Expand-Archive -Path $Path -DestinationPath "$DestinationPath" -Force
+        OutputDebug -message "Using Expand-ZipArchive"
+        Expand-ZipArchive -Path $Path -DestinationPath "$DestinationPath"
     }
 }
 

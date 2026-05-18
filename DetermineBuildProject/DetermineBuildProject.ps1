@@ -33,7 +33,7 @@ if (!$buildIt) {
             if ($file) {
                 Write-Host "Artifact downloaded for mask $mask"
                 $thisArtifactFolder = Join-Path $buildArtifactFolder $mask
-                Expand-Archive -Path $file -DestinationPath $thisArtifactFolder -Force
+                Expand-ZipArchive -Path $file -DestinationPath $thisArtifactFolder
                 Remove-Item -Path $file -Force
                 $buildIt = $false
             }

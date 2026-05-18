@@ -23,7 +23,7 @@ function DownloadAlDoc {
         Copy-Item -Path $alLanguageVsix -Destination "$($tempFolder).zip"
         New-Item -Path $tempFolder -ItemType Directory | Out-Null
         Write-Host "Extracting aldoc"
-        Expand-Archive -Path "$($tempFolder).zip" -DestinationPath $tempFolder -Force
+        Expand-ZipArchive -Path "$($tempFolder).zip" -DestinationPath $tempFolder
         Remove-Item -Path "$($tempFolder).zip" -Force
         if ($IsLinux) {
             $ENV:aldocPath = Join-Path $tempFolder 'extension/bin/linux/aldoc'

@@ -13,7 +13,7 @@ function DownloadNugetPackage($PackageName, $PackageVersion) {
         Invoke-WebRequest -Uri $Url -OutFile "$nugetPackagePath/$PackageName.$PackageVersion.zip"
 
         # Unzip the package
-        Expand-Archive -Path "$nugetPackagePath/$PackageName.$PackageVersion.zip" -DestinationPath "$nugetPackagePath"
+        [System.IO.Compression.ZipFile]::ExtractToDirectory("$nugetPackagePath/$PackageName.$PackageVersion.zip", "$nugetPackagePath")
 
         # Remove the zip file
         Remove-Item -Path "$nugetPackagePath/$PackageName.$PackageVersion.zip"

@@ -164,7 +164,7 @@ function DownloadAndUnpackArtifact {
     if (Test-Path $folder) {
         Remove-Item $folder -Recurse -Force
     }
-    Expand-Archive -Path $filename -DestinationPath $folder
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($filename, $folder)
     Remove-Item $filename -Force
 }
 

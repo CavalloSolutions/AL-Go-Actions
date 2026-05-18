@@ -134,7 +134,7 @@ foreach ($thisProject in $sortedProjectList) {
                     if ($artifactFile -notlike '*.zip') {
                         throw "Downloaded artifact is not a .zip file"
                     }
-                    Expand-Archive -Path $artifactFile -DestinationPath ($artifactFile.SubString(0, $artifactFile.Length - 4))
+                    [System.IO.Compression.ZipFile]::ExtractToDirectory($artifactFile, ($artifactFile.SubString(0, $artifactFile.Length - 4)))
                     Remove-Item $artifactFile -Force
                 }
             }
@@ -153,7 +153,7 @@ foreach ($thisProject in $sortedProjectList) {
                         if ($artifactFile -notlike '*.zip') {
                             throw "Downloaded artifact is not a .zip file"
                         }
-                        Expand-Archive -Path $artifactFile -DestinationPath ($artifactFile.SubString(0, $artifactFile.Length - 4))
+                        [System.IO.Compression.ZipFile]::ExtractToDirectory($artifactFile, ($artifactFile.SubString(0, $artifactFile.Length - 4)))
                         Remove-Item $artifactFile -Force
                     }
                 }
