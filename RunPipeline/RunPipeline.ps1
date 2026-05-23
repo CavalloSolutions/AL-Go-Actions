@@ -115,6 +115,16 @@ try {
         }
     }
 
+    # For self-hosted runners using compiler folder, set a persistent artifact cache path so the
+    # BC compiler artifacts and app-info metadata are reused across pipeline runs
+    if ($settings.useCompilerFolder -and -not ($runAlPipelineParams.Keys -contains 'artifactCachePath')) {
+        if (-not (($settings.gitHubRunner -like 'windows-*') -or ($settings.gitHubRunner -like 'ubuntu-*'))) {
+            $runAlPipelineParams += @{
+                "artifactCachePath" = "C:\ProgramData\BcContainerHelper\artifactcache"
+            }
+        }
+    }
+
     $settings = AnalyzeRepo -settings $settings -baseFolder $baseFolder -project $project @analyzeRepoParams
     $settings = CheckAppDependencyProbingPaths -settings $settings -token $token -baseFolder $baseFolder -project $project
 
@@ -374,6 +384,34 @@ try {
         }
     }
 
+    if ($runAlPipelineParams.Keys -notcontains 'NewBcContainer') {
+        $runAlPipelineParams += @{
+            "NewBcContainer" = {
+                Param([Hashtable]$parameters)
+                New-BcContainer @parameters
+                Invoke-ScriptInBcContainer $parameters.ContainerName -scriptblock { $progressPreference = 'SilentlyContinue' }
+                Set-BcContainerServerConfiguration $parameters.ContainerName DisableWriteInsideTryFunctions false
+                Restart-BCContainer $parameters.ContainerName
+            }
+        }
+    }
+
+    # Inject testCodeunitRange filter for parallel test shard execution.
+    # When set, restricts the test runner to only the specified codeunit ID range,
+    # enabling horizontal parallelism across multiple runners (e.g. '63500..63999').
+    $testCodeunitRangeOverride = $env:testCodeunitRange
+    if ($testCodeunitRangeOverride -and ($runAlPipelineParams.Keys -notcontains 'RunTestsInBcContainer')) {
+        Write-Host "Parallel test shard active - restricting tests to codeunit range: $testCodeunitRangeOverride"
+        $capturedRange = $testCodeunitRangeOverride
+        $runAlPipelineParams += @{
+            "RunTestsInBcContainer" = {
+                Param([Hashtable]$parameters)
+                $parameters["testCodeunitRange"] = $capturedRange
+                Run-TestsInBcContainer @parameters
+            }.GetNewClosure()
+        }
+    }
+
     if ($runAlPipelineParams.Keys -notcontains 'ImportTestDataInBcContainer') {
         if (($settings.configPackages) -or ($settings.Keys | Where-Object { $_ -like 'configPackages.*' })) {
             Write-Host "Adding Import Test Data override"
@@ -501,6 +539,12 @@ try {
         if ($settings."$_") { $runAlPipelineParams += @{ "$_" = $true } }
     }
 
+    # Allow workflow-level override of doNotRunTests (used when Build job skips tests
+    # and test execution is delegated to parallel TestMatrix shards in CICD.yaml)
+    if ($env:doNotRunTests -eq 'true') {
+        $runAlPipelineParams["doNotRunTests"] = $true
+    }
+
     if ($buildMode -eq 'Translated') {
         if ($runAlPipelineParams.Keys -notcontains 'features') {
             $runAlPipelineParams["features"] = @()
@@ -563,8 +607,7 @@ try {
         -pageScriptingTestResultsFolder (Join-Path $buildArtifactFolder 'PageScriptingTestResultDetails') `
         -CreateRuntimePackages:$CreateRuntimePackages `
         -appBuild $appBuild -appRevision $appRevision `
-        -uninstallRemovedApps `
-        -NewBcContainer { Param([Hashtable]$parameters) New-BcContainer @parameters; Invoke-ScriptInBcContainer $parameters.ContainerName -scriptblock { $progressPreference = 'SilentlyContinue' }; Set-BcContainerServerConfiguration $parameters.ContainerName DisableWriteInsideTryFunctions false; Restart-BCContainer $parameters.ContainerName}
+        -uninstallRemovedApps
 
     if ($containerBaseFolder) {
         Write-Host "Copy artifacts and build output back from build container"
