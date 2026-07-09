@@ -47,12 +47,7 @@ try {
         $verstr = $branch
     }
 
-    $runAlPipelineParams = @{
-        "sourceRepositoryUrl" = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
-        "sourceCommit" = $ENV:GITHUB_SHA
-        "buildBy" = "AL-Go for GitHub,$verstr"
-        "buildUrl" = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID"
-    }
+    $runAlPipelineParams = @{}
     if ($project  -eq ".") { $project = "" }
     $baseFolder = $ENV:GITHUB_WORKSPACE
     if ($bcContainerHelperConfig.useVolumes -and $bcContainerHelperConfig.hostHelperFolder -eq "HostHelperFolder") {
@@ -82,6 +77,15 @@ try {
     }
     else {
         $secrets = @{}
+    }
+
+    if ($settings.generateBuildInformation) {
+        $runAlPipelineParams += @{
+            "sourceRepositoryUrl" = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
+            "sourceCommit" = $ENV:GITHUB_SHA
+            "buildBy" = "AL-Go for GitHub,$verstr"
+            "buildUrl" = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID"
+        }
     }
 
     $appBuild = $settings.appBuild

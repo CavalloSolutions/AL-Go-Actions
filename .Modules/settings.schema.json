@@ -342,6 +342,10 @@
         "doNotSignApps": {
             "type": "boolean"
         },
+        "generateBuildInformation": {
+            "type": "boolean",
+            "description": "Include source repository, commit, build-by and build URL information (used for e.g. debugging) in the build. Set to false to exclude this information, e.g. for release builds. See https://aka.ms/ALGoSettings"
+        },
         "configPackages": {
             "type": "array",
             "items": {

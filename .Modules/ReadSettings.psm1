@@ -175,6 +175,7 @@ function GetDefaultSettings
         "doNotRunPageScriptingTests"                    = $false
         "doNotPublishApps"                              = $false
         "doNotSignApps"                                 = $false
+        "generateBuildInformation"                      = $true
         "configPackages"                                = @()
         "appSourceCopMandatoryAffixes"                  = @()
         "deliverToAppSource"                            = [ordered]@{
